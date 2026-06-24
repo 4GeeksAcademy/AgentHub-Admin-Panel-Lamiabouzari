@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentHub Admin Panel</title>
+  <script>
+    tailwind = window.tailwind || {};
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"]
+          },
+          colors: {
+            brand: {
+              50: "#f0f9ff",
+              100: "#e0f2fe",
+              500: "#0ea5e9",
+              600: "#0284c7",
+              700: "#0369a1"
+            }
+          },
+          boxShadow: {
+            panel: "0 20px 40px -24px rgba(2, 6, 23, 0.25)"
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    .bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(14, 165, 233, 0.08) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+
+    .dark .bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="h-full font-sans bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute -top-20 -right-20 h-96 w-96 rounded-full bg-cyan-300/35 blur-3xl dark:bg-cyan-700/25"></div>
+    <div class="absolute -bottom-24 -left-20 h-96 w-96 rounded-full bg-orange-300/35 blur-3xl dark:bg-orange-700/25"></div>
+    <div class="absolute inset-0 bg-grid"></div>
+  </div>
+
+  <div class="h-full flex">
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out bg-white/85 dark:bg-slate-900/90 backdrop-blur border-r border-white/70 dark:border-slate-800 shadow-panel lg:shadow-none">
+      <div class="h-full flex flex-col">
+        <div class="px-6 pt-6 pb-4 border-b border-slate-200/70 dark:border-slate-800/70">
+          <p class="text-xs uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 font-semibold">Control Center</p>
+          <h1 class="mt-2 text-2xl font-extrabold tracking-tight">AgentHub</h1>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Admin Panel</p>
+        </div>
+        <nav class="p-4 space-y-2" id="sidebarNav"></nav>
+      </div>
+    </aside>
+
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden lg:hidden"></div>
+
+    <div class="flex-1 min-w-0 lg:ml-0">
+      <header class="sticky top-0 z-20 backdrop-blur bg-white/80 dark:bg-slate-950/75 border-b border-slate-200/70 dark:border-slate-800/70">
+        <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+          <button id="mobileMenuBtn" class="lg:hidden inline-flex items-center justify-center rounded-xl px-3 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Open menu">
+            <span class="text-lg">☰</span>
+          </button>
+
+          <div class="min-w-0">
+            <h2 id="pageTitle" class="text-xl md:text-2xl font-bold tracking-tight">Dashboard</h2>
+            <p id="pageSubtitle" class="text-sm text-slate-600 dark:text-slate-300">Live operational overview</p>
+          </div>
+
+          <div class="ml-auto flex items-center gap-2">
+            <button id="darkModeToggle" class="inline-flex items-center gap-2 rounded-xl px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold">
+              <span id="themeIcon">🌙</span>
+              <span id="themeText">Dark Mode</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+        <section id="section-dashboard" class="section-content"></section>
+        <section id="section-users" class="section-content hidden"></section>
+        <section id="section-agents" class="section-content hidden"></section>
+        <section id="section-skills" class="section-content hidden"></section>
+        <section id="section-contracts" class="section-content hidden"></section>
+        <section id="section-errors" class="section-content hidden"></section>
+      </main>
+    </div>
+  </div>
+
+  <div id="modalRoot" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="modalBackdrop" class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"></div>
+    <div id="modalPanel" class="relative w-full max-w-2xl max-h-[85vh] overflow-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-start gap-3">
+        <h3 id="modalTitle" class="text-lg font-bold tracking-tight flex-1">Details</h3>
+        <button id="modalCloseBtn" class="rounded-lg px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close modal">✕</button>
+      </div>
+      <div id="modalBody" class="p-5"></div>
+      <div id="modalFooter" class="px-5 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-2"></div>
+    </div>
+  </div>
+
+  <script>
+    const appState = {
+      currentSection: "dashboard",
+      openDropdown: null,
+      activeModal: null,
+      users: [
+        { id: "u1", name: "Lena Ortiz", email: "lena.ortiz@agenthub.ai", plan: "Enterprise", status: "Active", createdAt: "2026-01-15" },
+        { id: "u2", name: "Marcus Lin", email: "marcus.lin@agenthub.ai", plan: "Pro", status: "Active", createdAt: "2026-02-03" },
+        { id: "u3", name: "Rina Das", email: "rina.das@agenthub.ai", plan: "Starter", status: "Inactive", createdAt: "2026-02-18" },
+        { id: "u4", name: "Noah Bennett", email: "noah.bennett@agenthub.ai", plan: "Pro", status: "Active", createdAt: "2026-03-01" },
+        { id: "u5", name: "Sofia Weber", email: "sofia.weber@agenthub.ai", plan: "Enterprise", status: "Active", createdAt: "2026-03-26" }
+      ],
+      skills: [
+        { id: "s1", name: "Customer Support", description: "Handles inbound support flows and ticket triage with contextual routing.", usageCount: 128 },
+        { id: "s2", name: "Sales Outreach", description: "Generates qualified outreach sequences with tone and segment controls.", usageCount: 94 },
+        { id: "s3", name: "Knowledge Retrieval", description: "Searches internal KB and returns source-backed answers.", usageCount: 176 },
+        { id: "s4", name: "Report Builder", description: "Compiles weekly operations summaries and KPI snapshots.", usageCount: 72 }
+      ],
+      agents: [
+        { id: "a1", name: "Atlas", status: "Active", skills: ["s1", "s3"], configuration: "Prioritize SLA-critical tickets and cite KB snippets in every response." },
+        { id: "a2", name: "Nova", status: "Active", skills: ["s2", "s4"], configuration: "Use concise sales tone. Escalate high-value prospects to human reps." },
+        { id: "a3", name: "Helix", status: "Maintenance", skills: ["s3"], configuration: "Read-only retrieval mode while model retraining is running." },
+        { id: "a4", name: "Pulse", status: "Active", skills: ["s1", "s2", "s4"], configuration: "Blend support and upsell prompts with strict compliance guardrails." }
+      ],
+      contracts: [
+        { id: "c1", client: "Northwind Labs", agentId: "a1", skills: ["s1", "s3"], startDate: "2026-01-01", endDate: "2026-07-01", amountPaid: 14200, currency: "USD" },
+        { id: "c2", client: "Summit Retail", agentId: "a2", skills: ["s2"], startDate: "2026-02-10", endDate: "2026-08-10", amountPaid: 9800, currency: "USD" },
+        { id: "c3", client: "Aster Health", agentId: "a4", skills: ["s1", "s4"], startDate: "2026-03-01", endDate: "2026-09-01", amountPaid: 17600, currency: "USD" },
+        { id: "c4", client: "Vertex Mobility", agentId: "a3", skills: ["s3"], startDate: "2026-03-15", endDate: "2026-09-15", amountPaid: 11100, currency: "USD" }
+      ],
+      errorLogs: [
+        { id: "e1", timestamp: "2026-06-24 10:24", agentName: "Atlas", errorType: "Timeout", description: "Knowledge API exceeded 3s timeout threshold.", resolved: false, details: "Retry attempts reached max of 3 before fallback." },
+        { id: "e2", timestamp: "2026-06-24 09:52", agentName: "Nova", errorType: "Validation", description: "Missing target segment in outreach payload.", resolved: false, details: "Campaign object lacked required segmentId field." },
+        { id: "e3", timestamp: "2026-06-24 08:18", agentName: "Helix", errorType: "Permission", description: "Read operation denied for archived KB namespace.", resolved: true, details: "Namespace ACL fixed by ops team at 08:35." },
+        { id: "e4", timestamp: "2026-06-23 18:41", agentName: "Pulse", errorType: "Rate Limit", description: "Exceeded allowed requests per minute to billing service.", resolved: false, details: "Burst traffic from report generation queue." },
+        { id: "e5", timestamp: "2026-06-23 17:07", agentName: "Atlas", errorType: "Parsing", description: "Malformed JSON in upstream webhook payload.", resolved: true, details: "Webhook schema mismatch addressed with strict parser." },
+        { id: "e6", timestamp: "2026-06-23 14:26", agentName: "Nova", errorType: "Dependency", description: "SMTP provider returned intermittent 502 responses.", resolved: false, details: "Provider incident opened with external vendor." }
+      ],
+      weeklyActivity: [
+        { day: "Mon", value: 56 },
+        { day: "Tue", value: 73 },
+        { day: "Wed", value: 68 },
+        { day: "Thu", value: 82 },
+        { day: "Fri", value: 76 },
+        { day: "Sat", value: 48 },
+        { day: "Sun", value: 59 }
+      ],
+      expandedAgents: {}
+    };
+
+    const sections = [
+      { id: "dashboard", label: "Dashboard", subtitle: "Live operational overview" },
+      { id: "users", label: "User Management", subtitle: "Manage plans, status, and account details" },
+      { id: "agents", label: "Agent Management", subtitle: "Configure agents and inspect skill stacks" },
+      { id: "skills", label: "Skills", subtitle: "Maintain skill catalog and usage" },
+      { id: "contracts", label: "Agent Contracts", subtitle: "Track active client contracts" },
+      { id: "errors", label: "Error Log", subtitle: "Triage and resolve runtime issues" }
+    ];
+
+    const statusBadge = (value) => {
+      const map = {
+        Active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+        Inactive: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200",
+        Maintenance: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+      };
+      return map[value] || "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300";
+    };
+
+    const planBadge = (value) => {
+      const map = {
+        Enterprise: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
+        Pro: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+        Starter: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
+      };
+      return map[value] || "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";
+    };
+
+    function formatMoney(value, currency = "USD") {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function getAgentById(id) {
+      return appState.agents.find((agent) => agent.id === id);
+    }
+
+    function getSkillById(id) {
+      return appState.skills.find((skill) => skill.id === id);
+    }
+
+    function closeDropdowns() {
+      appState.openDropdown = null;
+      document.querySelectorAll("[data-dropdown-menu]").forEach((menu) => menu.classList.add("hidden"));
+    }
+
+    function toggleDropdown(id, triggerEl) {
+      const menu = document.querySelector(`[data-dropdown-menu=\"${id}\"]`);
+      if (!menu) return;
+
+      const isCurrent = appState.openDropdown === id;
+      closeDropdowns();
+      if (!isCurrent) {
+        appState.openDropdown = id;
+        menu.classList.remove("hidden");
+
+        const rect = triggerEl.getBoundingClientRect();
+        const panelRect = menu.getBoundingClientRect();
+        if (rect.left + panelRect.width > window.innerWidth - 12) {
+          menu.classList.add("right-0");
+          menu.classList.remove("left-0");
+        } else {
+          menu.classList.add("left-0");
+          menu.classList.remove("right-0");
+        }
+      }
+    }
+
+    function openModal(title, bodyHTML, footerHTML = "") {
+      const root = document.getElementById("modalRoot");
+      const titleEl = document.getElementById("modalTitle");
+      const bodyEl = document.getElementById("modalBody");
+      const footerEl = document.getElementById("modalFooter");
+
+      titleEl.textContent = title;
+      bodyEl.innerHTML = bodyHTML;
+      footerEl.innerHTML = footerHTML || "<button data-modal-close class='rounded-xl px-4 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'>Close</button>";
+
+      root.classList.remove("hidden");
+      root.classList.add("flex");
+    }
+
+    function closeModal() {
+      const root = document.getElementById("modalRoot");
+      root.classList.add("hidden");
+      root.classList.remove("flex");
+      appState.activeModal = null;
+    }
+
+    function confirmDelete(message, onConfirm) {
+      const body = `<p class=\"text-sm text-slate-600 dark:text-slate-300\">${message}</p>`;
+      const footer = `
+        <button data-modal-close class=\"rounded-xl px-4 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800\">Cancel</button>
+        <button id=\"confirmDeleteBtn\" class=\"rounded-xl px-4 py-2 bg-rose-600 text-white hover:bg-rose-700\">Delete</button>
+      `;
+      openModal("Confirm Delete", body, footer);
+      document.getElementById("confirmDeleteBtn").addEventListener("click", () => {
+        onConfirm();
+        closeModal();
+      });
+    }
+
+    function renderSidebar() {
+      const nav = document.getElementById("sidebarNav");
+      nav.innerHTML = sections
+        .map((section) => {
+          const active = section.id === appState.currentSection;
+          return `
+            <button data-nav="${section.id}" class="w-full text-left rounded-xl px-4 py-3 border transition ${
+              active
+                ? "bg-sky-600 border-sky-600 text-white shadow-lg shadow-sky-500/25"
+                : "bg-white/70 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+            }">
+              <span class="text-sm font-semibold">${section.label}</span>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    function renderDashboard() {
+      const unresolvedErrors = appState.errorLogs.filter((err) => !err.resolved).length;
+      const activeAgents = appState.agents.filter((agent) => agent.status === "Active").length;
+      const metricCards = [
+        { label: "Total Users", value: appState.users.length, trend: "+8% this month" },
+        { label: "Active Agents", value: activeAgents, trend: "+1 this week" },
+        { label: "Active Contracts", value: appState.contracts.length, trend: "Stable pipeline" },
+        { label: "Unresolved Errors", value: unresolvedErrors, trend: "Needs attention" }
+      ];
+
+      const maxValue = Math.max(...appState.weeklyActivity.map((item) => item.value));
+
+      document.getElementById("section-dashboard").innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          ${metricCards
+            .map(
+              (card) => `
+                <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+                  <p class="text-sm text-slate-600 dark:text-slate-300">${card.label}</p>
+                  <p class="mt-2 text-3xl font-extrabold tracking-tight">${card.value}</p>
+                  <p class="mt-2 text-xs font-semibold text-sky-600 dark:text-sky-400">${card.trend}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+
+        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-lg font-bold">Weekly Activity</h3>
+            <p class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Chart Placeholder</p>
+          </div>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Future integration point for chart library. Current view uses static bars from hardcoded activity data.</p>
+          <div class="mt-5 grid grid-cols-7 gap-3 items-end h-52 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-4 bg-slate-50/70 dark:bg-slate-800/40">
+            ${appState.weeklyActivity
+              .map((item) => {
+                const height = Math.max(12, Math.round((item.value / maxValue) * 140));
+                return `
+                  <div class="h-full flex flex-col items-center justify-end gap-2">
+                    <div class="w-full max-w-10 rounded-t-md bg-gradient-to-t from-sky-600 to-cyan-400 dark:from-sky-500 dark:to-cyan-300" style="height:${height}px"></div>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-300">${item.day}</span>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderUsers() {
+      const rows = appState.users
+        .map(
+          (user) => `
+            <tr class="border-b border-slate-200 dark:border-slate-800">
+              <td class="px-4 py-3 font-semibold">${user.name}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">${user.email}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${planBadge(user.plan)}">${user.plan}</span>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadge(user.status)}">${user.status}</span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="relative inline-block text-left" data-dropdown-container>
+                  <button data-dropdown-trigger="user-${user.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
+                  <div data-dropdown-menu="user-${user.id}" class="hidden absolute mt-2 min-w-40 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
+                    <button data-user-view="${user.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                    <button data-user-delete="${user.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+
+      document.getElementById("section-users").innerHTML = `
+        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold">Users</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">Hardcoded records: ${appState.users.length}</p>
+          </div>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="text-left px-4 py-3 font-semibold">Name</th>
+                  <th class="text-left px-4 py-3 font-semibold">Email</th>
+                  <th class="text-left px-4 py-3 font-semibold">Plan</th>
+                  <th class="text-left px-4 py-3 font-semibold">Status</th>
+                  <th class="text-right px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderAgents() {
+      const cards = appState.agents
+        .map((agent) => {
+          const expanded = !!appState.expandedAgents[agent.id];
+          const skillNames = agent.skills.map((id) => getSkillById(id)?.name || id);
+          return `
+            <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+              <div class="flex items-start gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-lg font-bold">${agent.name}</h3>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadge(agent.status)}">${agent.status}</span>
+                  </div>
+                  <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Agent ID: ${agent.id}</p>
+                </div>
+
+                <div class="relative" data-dropdown-container>
+                  <button data-dropdown-trigger="agent-${agent.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
+                  <div data-dropdown-menu="agent-${agent.id}" class="hidden absolute right-0 mt-2 min-w-44 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
+                    <button data-agent-configure="${agent.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Configure</button>
+                    <button data-agent-delete="${agent.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <button data-agent-toggle="${agent.id}" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="text-sm font-semibold">Skills (${skillNames.length})</span>
+                  <span class="text-sm">${expanded ? "▲" : "▼"}</span>
+                </button>
+                <div class="${expanded ? "block" : "hidden"} px-4 py-3 border-t border-slate-200 dark:border-slate-700">
+                  <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                    ${skillNames.map((name) => `<li class=\"rounded-lg bg-slate-100 dark:bg-slate-800 px-3 py-2\">${name}</li>`).join("")}
+                  </ul>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+
+      document.getElementById("section-agents").innerHTML = `
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          ${cards}
+        </div>
+      `;
+    }
+
+    function renderSkills() {
+      const rows = appState.skills
+        .map(
+          (skill) => `
+            <tr class="border-b border-slate-200 dark:border-slate-800">
+              <td class="px-4 py-3 font-semibold">${skill.name}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">${skill.description}</td>
+              <td class="px-4 py-3 text-right font-bold">${skill.usageCount}</td>
+              <td class="px-4 py-3 text-right">
+                <div class="relative inline-block" data-dropdown-container>
+                  <button data-dropdown-trigger="skill-${skill.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
+                  <div data-dropdown-menu="skill-${skill.id}" class="hidden absolute right-0 mt-2 min-w-40 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
+                    <button data-skill-view="${skill.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                    <button data-skill-delete="${skill.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+
+      document.getElementById("section-skills").innerHTML = `
+        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold">Skills Catalog</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">Track usage and lifecycle of reusable capabilities</p>
+          </div>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="text-left px-4 py-3 font-semibold">Name</th>
+                  <th class="text-left px-4 py-3 font-semibold">Description</th>
+                  <th class="text-right px-4 py-3 font-semibold">Usage Count</th>
+                  <th class="text-right px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderContracts() {
+      const rows = appState.contracts
+        .map((contract) => {
+          const agent = getAgentById(contract.agentId);
+          const skillNames = contract.skills.map((id) => getSkillById(id)?.name || id).join(", ");
+          return `
+            <tr class="border-b border-slate-200 dark:border-slate-800">
+              <td class="px-4 py-3 font-semibold">${contract.client}</td>
+              <td class="px-4 py-3">${agent ? agent.name : contract.agentId}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">${skillNames}</td>
+              <td class="px-4 py-3">${contract.startDate} - ${contract.endDate}</td>
+              <td class="px-4 py-3 font-bold">${formatMoney(contract.amountPaid, contract.currency)}</td>
+              <td class="px-4 py-3 text-right">
+                <button data-contract-view="${contract.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      document.getElementById("section-contracts").innerHTML = `
+        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold">Contracts</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">Client agreements linked to agents and skills</p>
+          </div>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="text-left px-4 py-3 font-semibold">Client</th>
+                  <th class="text-left px-4 py-3 font-semibold">Agent</th>
+                  <th class="text-left px-4 py-3 font-semibold">Skills</th>
+                  <th class="text-left px-4 py-3 font-semibold">Dates</th>
+                  <th class="text-left px-4 py-3 font-semibold">Amount Paid</th>
+                  <th class="text-right px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderErrors() {
+      const sorted = [...appState.errorLogs].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+
+      const rows = sorted
+        .map(
+          (error) => `
+            <tr class="border-b border-slate-200 dark:border-slate-800 ${error.resolved ? "opacity-70" : ""}">
+              <td class="px-4 py-3 whitespace-nowrap">${error.timestamp}</td>
+              <td class="px-4 py-3 font-semibold">${error.agentName}</td>
+              <td class="px-4 py-3">${error.errorType}</td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">${error.description}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${error.resolved ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"}">
+                  ${error.resolved ? "Resolved" : "Unresolved"}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <button data-error-view="${error.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                <button data-error-resolve="${error.id}" class="ml-2 rounded-lg px-3 py-1.5 text-sm ${error.resolved ? "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-300 cursor-not-allowed" : "bg-emerald-600 text-white hover:bg-emerald-700"}" ${error.resolved ? "disabled" : ""}>Mark as Resolved</button>
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+
+      document.getElementById("section-errors").innerHTML = `
+        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold">Error Log</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">Newest errors first, with resolution controls</p>
+          </div>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="text-left px-4 py-3 font-semibold">Timestamp</th>
+                  <th class="text-left px-4 py-3 font-semibold">Agent</th>
+                  <th class="text-left px-4 py-3 font-semibold">Error Type</th>
+                  <th class="text-left px-4 py-3 font-semibold">Description</th>
+                  <th class="text-left px-4 py-3 font-semibold">Status</th>
+                  <th class="text-right px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSectionContent() {
+      renderDashboard();
+      renderUsers();
+      renderAgents();
+      renderSkills();
+      renderContracts();
+      renderErrors();
+      bindDynamicEvents();
+    }
+
+    function showSection(sectionId) {
+      appState.currentSection = sectionId;
+      sections.forEach((section) => {
+        const el = document.getElementById(`section-${section.id}`);
+        if (!el) return;
+        el.classList.toggle("hidden", section.id !== sectionId);
+      });
+
+      const active = sections.find((s) => s.id === sectionId);
+      document.getElementById("pageTitle").textContent = active.label;
+      document.getElementById("pageSubtitle").textContent = active.subtitle;
+      renderSidebar();
+      closeDropdowns();
+      closeMobileSidebar();
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById("sidebar").classList.add("-translate-x-full");
+      document.getElementById("sidebarBackdrop").classList.add("hidden");
+    }
+
+    function openMobileSidebar() {
+      document.getElementById("sidebar").classList.remove("-translate-x-full");
+      document.getElementById("sidebarBackdrop").classList.remove("hidden");
+    }
+
+    function applyTheme(mode) {
+      const root = document.documentElement;
+      const icon = document.getElementById("themeIcon");
+      const text = document.getElementById("themeText");
+      const dark = mode === "dark";
+      root.classList.toggle("dark", dark);
+      icon.textContent = dark ? "☀" : "🌙";
+      text.textContent = dark ? "Light Mode" : "Dark Mode";
+      localStorage.setItem("agenthub-theme", mode);
+    }
+
+    function bindStaticEvents() {
+      document.getElementById("sidebarNav").addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-nav]");
+        if (!btn) return;
+        showSection(btn.getAttribute("data-nav"));
+      });
+
+      document.getElementById("mobileMenuBtn").addEventListener("click", openMobileSidebar);
+      document.getElementById("sidebarBackdrop").addEventListener("click", closeMobileSidebar);
+
+      document.getElementById("darkModeToggle").addEventListener("click", () => {
+        const dark = document.documentElement.classList.contains("dark");
+        applyTheme(dark ? "light" : "dark");
+      });
+
+      document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+      document.getElementById("modalBackdrop").addEventListener("click", closeModal);
+      document.getElementById("modalFooter").addEventListener("click", (event) => {
+        if (event.target.closest("[data-modal-close]")) closeModal();
+      });
+
+      document.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-dropdown-trigger]");
+        if (trigger) {
+          event.stopPropagation();
+          toggleDropdown(trigger.getAttribute("data-dropdown-trigger"), trigger);
+          return;
+        }
+
+        const insideDropdown = event.target.closest("[data-dropdown-container]");
+        if (!insideDropdown) closeDropdowns();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeDropdowns();
+          closeModal();
+          closeMobileSidebar();
+        }
+      });
+    }
+
+    function bindDynamicEvents() {
+      document.querySelectorAll("[data-user-view]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const user = appState.users.find((item) => item.id === btn.getAttribute("data-user-view"));
+          if (!user) return;
+          openModal(
+            `User Detail: ${user.name}`,
+            `
+              <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Name:</span> ${user.name}</p>
+                <p><span class="font-semibold">Email:</span> ${user.email}</p>
+                <p><span class="font-semibold">Plan:</span> ${user.plan}</p>
+                <p><span class="font-semibold">Status:</span> ${user.status}</p>
+                <p><span class="font-semibold">Created:</span> ${user.createdAt}</p>
+              </div>
+            `
+          );
+        });
+      });
+
+      document.querySelectorAll("[data-user-delete]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const userId = btn.getAttribute("data-user-delete");
+          const user = appState.users.find((item) => item.id === userId);
+          if (!user) return;
+          confirmDelete(`Delete user ${user.name}? This action removes the record from local UI state.`, () => {
+            appState.users = appState.users.filter((item) => item.id !== userId);
+            renderSectionContent();
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-agent-toggle]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-agent-toggle");
+          appState.expandedAgents[id] = !appState.expandedAgents[id];
+          renderAgents();
+          bindDynamicEvents();
+        });
+      });
+
+      document.querySelectorAll("[data-agent-configure]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const agentId = btn.getAttribute("data-agent-configure");
+          const agent = appState.agents.find((item) => item.id === agentId);
+          if (!agent) return;
+
+          openModal(
+            `Configure Agent: ${agent.name}`,
+            `
+              <label class="block text-sm font-semibold mb-2">Configuration</label>
+              <textarea id="agentConfigInput" class="w-full min-h-40 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 text-sm" placeholder="Enter configuration...">${agent.configuration}</textarea>
+            `,
+            `
+              <button data-modal-close class="rounded-xl px-4 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</button>
+              <button id="saveAgentConfig" class="rounded-xl px-4 py-2 bg-sky-600 text-white hover:bg-sky-700">Save</button>
+            `
+          );
+
+          document.getElementById("saveAgentConfig").addEventListener("click", () => {
+            const input = document.getElementById("agentConfigInput");
+            agent.configuration = input.value.trim();
+            closeModal();
+            renderSectionContent();
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-agent-delete]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const agentId = btn.getAttribute("data-agent-delete");
+          const agent = appState.agents.find((item) => item.id === agentId);
+          if (!agent) return;
+          confirmDelete(`Delete agent ${agent.name}? Associated contracts remain for history.`, () => {
+            appState.agents = appState.agents.filter((item) => item.id !== agentId);
+            renderSectionContent();
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-skill-view]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const skill = appState.skills.find((item) => item.id === btn.getAttribute("data-skill-view"));
+          if (!skill) return;
+          openModal(
+            `Skill Detail: ${skill.name}`,
+            `
+              <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Name:</span> ${skill.name}</p>
+                <p><span class="font-semibold">Description:</span> ${skill.description}</p>
+                <p><span class="font-semibold">Usage Count:</span> ${skill.usageCount}</p>
+                <p><span class="font-semibold">Skill ID:</span> ${skill.id}</p>
+              </div>
+            `
+          );
+        });
+      });
+
+      document.querySelectorAll("[data-skill-delete]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          closeDropdowns();
+          const skillId = btn.getAttribute("data-skill-delete");
+          const skill = appState.skills.find((item) => item.id === skillId);
+          if (!skill) return;
+          confirmDelete(`Delete skill ${skill.name}? Agents and contracts may display raw IDs after deletion.`, () => {
+            appState.skills = appState.skills.filter((item) => item.id !== skillId);
+            renderSectionContent();
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-contract-view]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const contract = appState.contracts.find((item) => item.id === btn.getAttribute("data-contract-view"));
+          if (!contract) return;
+          const agent = getAgentById(contract.agentId);
+          const skillNames = contract.skills.map((id) => getSkillById(id)?.name || id).join(", ");
+
+          openModal(
+            `Contract Detail: ${contract.client}`,
+            `
+              <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Client:</span> ${contract.client}</p>
+                <p><span class="font-semibold">Agent:</span> ${agent ? agent.name : contract.agentId}</p>
+                <p><span class="font-semibold">Skills:</span> ${skillNames}</p>
+                <p><span class="font-semibold">Start Date:</span> ${contract.startDate}</p>
+                <p><span class="font-semibold">End Date:</span> ${contract.endDate}</p>
+                <p><span class="font-semibold">Amount Paid:</span> ${formatMoney(contract.amountPaid, contract.currency)}</p>
+                <p><span class="font-semibold">Contract ID:</span> ${contract.id}</p>
+              </div>
+            `
+          );
+        });
+      });
+
+      document.querySelectorAll("[data-error-view]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const error = appState.errorLogs.find((item) => item.id === btn.getAttribute("data-error-view"));
+          if (!error) return;
+          openModal(
+            `Error Detail: ${error.errorType}`,
+            `
+              <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Timestamp:</span> ${error.timestamp}</p>
+                <p><span class="font-semibold">Agent:</span> ${error.agentName}</p>
+                <p><span class="font-semibold">Error Type:</span> ${error.errorType}</p>
+                <p><span class="font-semibold">Description:</span> ${error.description}</p>
+                <p><span class="font-semibold">Details:</span> ${error.details || "No additional details."}</p>
+                <p><span class="font-semibold">Status:</span> ${error.resolved ? "Resolved" : "Unresolved"}</p>
+              </div>
+            `
+          );
+        });
+      });
+
+      document.querySelectorAll("[data-error-resolve]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-error-resolve");
+          const error = appState.errorLogs.find((item) => item.id === id);
+          if (!error || error.resolved) return;
+          error.resolved = true;
+          renderSectionContent();
+        });
+      });
+    }
+
+    function init() {
+      const savedTheme = localStorage.getItem("agenthub-theme");
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      } else {
+        applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      }
+
+      renderSidebar();
+      renderSectionContent();
+      bindStaticEvents();
+      showSection("dashboard");
+    }
+
+    init();
+  </script>
+</body>
+</html>
