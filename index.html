@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AgentHub Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind = window.tailwind || {};
     tailwind.config = {
       darkMode: "class",
       theme: {
@@ -29,7 +29,6 @@
       }
     };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -57,7 +56,7 @@
     }
   </style>
 </head>
-<body class="h-full font-sans bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+<body class="h-full font-sans bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div class="absolute -top-20 -right-20 h-96 w-96 rounded-full bg-cyan-300/35 blur-3xl dark:bg-cyan-700/25"></div>
     <div class="absolute -bottom-24 -left-20 h-96 w-96 rounded-full bg-orange-300/35 blur-3xl dark:bg-orange-700/25"></div>
@@ -65,7 +64,7 @@
   </div>
 
   <div class="h-full flex">
-    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out bg-white/85 dark:bg-slate-900/90 backdrop-blur border-r border-white/70 dark:border-slate-800 shadow-panel lg:shadow-none">
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out bg-white dark:bg-slate-900 backdrop-blur border-r border-slate-300 dark:border-slate-700 shadow-panel lg:shadow-none">
       <div class="h-full flex flex-col">
         <div class="px-6 pt-6 pb-4 border-b border-slate-200/70 dark:border-slate-800/70">
           <p class="text-xs uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 font-semibold">Control Center</p>
@@ -79,7 +78,7 @@
     <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/40 z-30 hidden lg:hidden"></div>
 
     <div class="flex-1 min-w-0 lg:ml-0">
-      <header class="sticky top-0 z-20 backdrop-blur bg-white/80 dark:bg-slate-950/75 border-b border-slate-200/70 dark:border-slate-800/70">
+      <header class="sticky top-0 z-20 backdrop-blur bg-white dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700">
         <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
           <button id="mobileMenuBtn" class="lg:hidden inline-flex items-center justify-center rounded-xl px-3 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Open menu">
             <span class="text-lg">☰</span>
@@ -91,7 +90,7 @@
           </div>
 
           <div class="ml-auto flex items-center gap-2">
-            <button id="darkModeToggle" class="inline-flex items-center gap-2 rounded-xl px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold">
+            <button id="darkModeToggle" class="inline-flex items-center gap-2 rounded-xl px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-semibold">
               <span id="themeIcon">🌙</span>
               <span id="themeText">Dark Mode</span>
             </button>
@@ -112,7 +111,7 @@
 
   <div id="modalRoot" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div id="modalBackdrop" class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"></div>
-    <div id="modalPanel" class="relative w-full max-w-2xl max-h-[85vh] overflow-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
+    <div id="modalPanel" class="relative w-full max-w-2xl max-h-[85vh] overflow-auto rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl">
       <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-start gap-3">
         <h3 id="modalTitle" class="text-lg font-bold tracking-tight flex-1">Details</h3>
         <button id="modalCloseBtn" class="rounded-lg px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close modal">✕</button>
@@ -311,7 +310,7 @@
           ${metricCards
             .map(
               (card) => `
-                <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+                <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-panel">
                   <p class="text-sm text-slate-600 dark:text-slate-300">${card.label}</p>
                   <p class="mt-2 text-3xl font-extrabold tracking-tight">${card.value}</p>
                   <p class="mt-2 text-xs font-semibold text-sky-600 dark:text-sky-400">${card.trend}</p>
@@ -321,7 +320,7 @@
             .join("")}
         </div>
 
-        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+        <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-panel">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-lg font-bold">Weekly Activity</h3>
             <p class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Chart Placeholder</p>
@@ -359,9 +358,9 @@
               </td>
               <td class="px-4 py-3 text-right">
                 <div class="relative inline-block text-left" data-dropdown-container>
-                  <button data-dropdown-trigger="user-${user.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
-                  <div data-dropdown-menu="user-${user.id}" class="hidden absolute mt-2 min-w-40 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
-                    <button data-user-view="${user.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                  <button data-dropdown-trigger="user-${user.id}" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-700">Actions ▾</button>
+                  <div data-dropdown-menu="user-${user.id}" class="hidden absolute mt-2 min-w-40 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-lg p-1 z-10">
+                    <button data-user-view="${user.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700">View Detail</button>
                     <button data-user-delete="${user.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
                   </div>
                 </div>
@@ -372,14 +371,14 @@
         .join("");
 
       document.getElementById("section-users").innerHTML = `
-        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+        <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-panel overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
             <h3 class="text-lg font-bold">Users</h3>
             <p class="text-sm text-slate-600 dark:text-slate-300">Hardcoded records: ${appState.users.length}</p>
           </div>
           <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+              <thead class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <tr>
                   <th class="text-left px-4 py-3 font-semibold">Name</th>
                   <th class="text-left px-4 py-3 font-semibold">Email</th>
@@ -401,7 +400,7 @@
           const expanded = !!appState.expandedAgents[agent.id];
           const skillNames = agent.skills.map((id) => getSkillById(id)?.name || id);
           return `
-            <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 p-5 shadow-panel">
+            <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-panel">
               <div class="flex items-start gap-3">
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap">
@@ -412,16 +411,16 @@
                 </div>
 
                 <div class="relative" data-dropdown-container>
-                  <button data-dropdown-trigger="agent-${agent.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
-                  <div data-dropdown-menu="agent-${agent.id}" class="hidden absolute right-0 mt-2 min-w-44 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
-                    <button data-agent-configure="${agent.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Configure</button>
+                  <button data-dropdown-trigger="agent-${agent.id}" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-700">Actions ▾</button>
+                  <div data-dropdown-menu="agent-${agent.id}" class="hidden absolute right-0 mt-2 min-w-44 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-lg p-1 z-10">
+                    <button data-agent-configure="${agent.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700">Configure</button>
                     <button data-agent-delete="${agent.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
                   </div>
                 </div>
               </div>
 
               <div class="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <button data-agent-toggle="${agent.id}" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button data-agent-toggle="${agent.id}" class="w-full flex items-center justify-between px-4 py-3 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-950">
                   <span class="text-sm font-semibold">Skills (${skillNames.length})</span>
                   <span class="text-sm">${expanded ? "▲" : "▼"}</span>
                 </button>
@@ -453,9 +452,9 @@
               <td class="px-4 py-3 text-right font-bold">${skill.usageCount}</td>
               <td class="px-4 py-3 text-right">
                 <div class="relative inline-block" data-dropdown-container>
-                  <button data-dropdown-trigger="skill-${skill.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Actions ▾</button>
-                  <div data-dropdown-menu="skill-${skill.id}" class="hidden absolute right-0 mt-2 min-w-40 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-1 z-10">
-                    <button data-skill-view="${skill.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                  <button data-dropdown-trigger="skill-${skill.id}" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-700">Actions ▾</button>
+                  <div data-dropdown-menu="skill-${skill.id}" class="hidden absolute right-0 mt-2 min-w-40 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-lg p-1 z-10">
+                    <button data-skill-view="${skill.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700">View Detail</button>
                     <button data-skill-delete="${skill.id}" class="w-full text-left px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">Delete</button>
                   </div>
                 </div>
@@ -466,14 +465,14 @@
         .join("");
 
       document.getElementById("section-skills").innerHTML = `
-        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+        <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-panel overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
             <h3 class="text-lg font-bold">Skills Catalog</h3>
             <p class="text-sm text-slate-600 dark:text-slate-300">Track usage and lifecycle of reusable capabilities</p>
           </div>
           <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+              <thead class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <tr>
                   <th class="text-left px-4 py-3 font-semibold">Name</th>
                   <th class="text-left px-4 py-3 font-semibold">Description</th>
@@ -501,7 +500,7 @@
               <td class="px-4 py-3">${contract.startDate} - ${contract.endDate}</td>
               <td class="px-4 py-3 font-bold">${formatMoney(contract.amountPaid, contract.currency)}</td>
               <td class="px-4 py-3 text-right">
-                <button data-contract-view="${contract.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                <button data-contract-view="${contract.id}" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-700">View Detail</button>
               </td>
             </tr>
           `;
@@ -509,14 +508,14 @@
         .join("");
 
       document.getElementById("section-contracts").innerHTML = `
-        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+        <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-panel overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
             <h3 class="text-lg font-bold">Contracts</h3>
             <p class="text-sm text-slate-600 dark:text-slate-300">Client agreements linked to agents and skills</p>
           </div>
           <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+              <thead class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <tr>
                   <th class="text-left px-4 py-3 font-semibold">Client</th>
                   <th class="text-left px-4 py-3 font-semibold">Agent</th>
@@ -550,7 +549,7 @@
                 </span>
               </td>
               <td class="px-4 py-3 text-right whitespace-nowrap">
-                <button data-error-view="${error.id}" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">View Detail</button>
+                <button data-error-view="${error.id}" class="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-700">View Detail</button>
                 <button data-error-resolve="${error.id}" class="ml-2 rounded-lg px-3 py-1.5 text-sm ${error.resolved ? "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-300 cursor-not-allowed" : "bg-emerald-600 text-white hover:bg-emerald-700"}" ${error.resolved ? "disabled" : ""}>Mark as Resolved</button>
               </td>
             </tr>
@@ -559,14 +558,14 @@
         .join("");
 
       document.getElementById("section-errors").innerHTML = `
-        <article class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 shadow-panel overflow-hidden">
+        <article class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-panel overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
             <h3 class="text-lg font-bold">Error Log</h3>
             <p class="text-sm text-slate-600 dark:text-slate-300">Newest errors first, with resolution controls</p>
           </div>
           <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
+              <thead class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <tr>
                   <th class="text-left px-4 py-3 font-semibold">Timestamp</th>
                   <th class="text-left px-4 py-3 font-semibold">Agent</th>
